@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  counting:
+    image: 200325/counting-service:latest
+    container_name: counting-service
+    ports:
+      - "9003:9003"
+    environment:
+      - PORT=9003
+
+  dashboard:
+    image: 200325/dashboard-service:latest
+    container_name: dashboard-service
+    ports:
+      - "9002:9002"
+    environment:
+      - PORT=9002
+      - COUNTING_SERVICE_URL=http://counting:9003
+    depends_on:
+      - counting
