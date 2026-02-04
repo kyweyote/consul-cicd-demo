@@ -1,0 +1,34 @@
+stages:
+  - build
+
+variables:
+  COUNTING_IMAGE: "$DOCKER_HUB_USER/counting-service"
+  DASHBOARD_IMAGE: "$DOCKER_HUB_USER/dashboard-service"
+
+# Use Docker-in-Docker service
+default:
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USER" --password-stdin
+
+# Build and push counting-service
+build-counting-service:
+  stage: build
+  script:
+    - cd counting-service
+    - docker build -t $COUNTING_IMAGE:$CI_COMMIT_SHORT_SHA .
+    - docker tag $COUNTING_IMAGE:$CI_COMMIT_SHORT_SHA $COUNTING_IMAGE:latest
+    - docker push $COUNTING_IMAGE:$CI_COMMIT_SHORT_SHA
+    - docker push $COUNTING_IMAGE:latest
+
+# Build and push dashboard-service
+build-dashboard-service:
+  stage: build
+  script:
+    - cd dashboard-service
+    - docker build -t $DASHBOARD_IMAGE:$CI_COMMIT_SHORT_SHA .
+    - docker tag $DASHBOARD_IMAGE:$CI_COMMIT_SHORT_SHA $DASHBOARD_IMAGE:latest
+    - docker push $DASHBOARD_IMAGE:$CI_COMMIT_SHORT_SHA
+    - docker push $DASHBOARD_IMAGE:latest
