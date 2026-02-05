@@ -2,7 +2,8 @@
 
 # Get container IPs
 COUNTING_IPS=($(docker ps --filter "name=counting" --format "{{.Names}}" | sort | while read name; do docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $name; done))
-DASHBOARD_IPS=($(docker ps --filter "name=dashboard" --format "{{.Names}}" | sort | while read name; do docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $name; done))
+# Exclude dashboard-lb from dashboard IPs
+DASHBOARD_IPS=($(docker ps --filter "name=dashboard" --format "{{.Names}}" | grep -v 'dashboard-lb' | sort | while read name; do docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $name; done))
 
 # Register counting services
 for i in "${!COUNTING_IPS[@]}"; do

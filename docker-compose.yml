@@ -28,6 +28,7 @@ services:
       - "9003"
     networks:
       - appnet
+    restart: always
 
   dashboard:
     image: 200325/dashboard-service:latest
@@ -40,6 +41,19 @@ services:
       - counting
     networks:
       - appnet
+    restart: always
+
+  dashboard-lb:
+    image: nginx:alpine
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./nginx-dashboard.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - dashboard
+    networks:
+      - appnet
+    restart: always
 
 networks:
   appnet:
