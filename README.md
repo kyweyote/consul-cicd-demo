@@ -95,8 +95,10 @@ You should see all services registered in the Consul UI.
 ![Consul UI](assets/consul-ui.png)
 
 ### 5. Dashboard Load Balancer (Nginx)
-Access the Dashboard through Loadbalancer 
-(assets/lb.png)
+
+The dashboard service is accessible through an Nginx load balancer, which provides a single entry point and automatically distributes requests across all running dashboard-service containers. Nginx uses Docker DNS for dynamic service discovery and load balancing.
+
+![Dashboard via Load Balancer](assets/lb.png)
 
 ### Testing Fault Tolerance by Scaling Down Counting Service
 
