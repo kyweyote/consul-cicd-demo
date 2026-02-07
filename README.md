@@ -14,14 +14,20 @@ This project demonstrates a multi-architecture Docker CI/CD pipeline. It include
   - 3 `counting-service` containers
   - 3 `dashboard-service` containers
   - 1 Consul agent for service registration/monitoring
+  - 1 DNSMASQ container for conditional DNS forwarding
   - 1 Nginx load balancer for dashboard service (auto-load balances all dashboard instances)
 - **Automatic Consul Registration**: All service containers are registered with Consul via a custom script.
 - **Flexible Service Discovery**: Nginx uses Docker DNS to dynamically route traffic to all dashboard-service containers, supporting scaling and zero manual IP configuration.
-- **Consul DNS Integration**: 
-  - Consul agent configured with DNS recursion (`-recursor=8.8.8.8`) to resolve external domains
-  - Consul DNS server exposed on port 53 for container DNS queries
-  - Static IP address (`172.18.0.100`) assigned to Consul for reliable DNS resolution
-  - All service containers configured to use Consul as their DNS server, enabling `.service.consul` domain resolution
+- **Conditional DNS Forwarding with DNSMASQ**: 
+  - DNSMASQ acts as a conditional DNS forwarder at `172.18.0.101`
+  - All service containers use DNSMASQ as their primary DNS server
+  - **DNS Resolution Flow**:
+    - Queries for `.consul` domains (e.g., `counting.service.consul`) → forwarded to Consul DNS at `172.18.0.100:8600`
+    - All other queries (e.g., `www.google.com`) → forwarded to Google DNS at `8.8.8.8`
+  - Configuration in `dnsmasq.conf`:
+    - `server=/consul/172.18.0.100#8600` - forward .consul domains to Consul
+    - `server=8.8.8.8` - forward other queries to Google DNS
+  - Enables seamless service-to-service communication via Consul service discovery while maintaining external DNS connectivity
 
 ## Quick Start
 

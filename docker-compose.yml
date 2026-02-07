@@ -1,7 +1,7 @@
 services:
   consul:
     image: hashicorp/consul:1.16
-    command: agent -dev -client=0.0.0.0 -recursor=8.8.8.8 -dns-port=53
+    command: agent -dev -client=0.0.0.0
     ports:
       - "8500:8500"   # Consul UI/API
       - "8600:8600/udp"
@@ -9,6 +9,18 @@ services:
     networks:
       appnet:
         ipv4_address: 172.18.0.100
+
+  dnsmasq:
+    image: jpillora/dnsmasq
+    command: -k --log-facility=-
+    volumes:
+      - ./dnsmasq.conf:/etc/dnsmasq.conf:ro
+    depends_on:
+      - consul
+    networks:
+      appnet:
+        ipv4_address: 172.18.0.101
+    restart: always
 
   registrator:
     image: docker:cli
@@ -33,7 +45,7 @@ services:
       appnet:
     restart: always
     dns:
-      - 172.18.0.100
+      - 172.18.0.101
 
   dashboard:
     image: 200325/dashboard-service:latest
@@ -48,7 +60,7 @@ services:
       appnet:
     restart: always
     dns:
-      - 172.18.0.100
+      - 172.18.0.101
 
   dashboard-lb:
     image: nginx:alpine
