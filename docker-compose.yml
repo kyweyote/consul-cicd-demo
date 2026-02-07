@@ -1,11 +1,14 @@
 services:
   consul:
     image: hashicorp/consul:1.16
-    command: agent -dev -client=0.0.0.0
+    command: agent -dev -client=0.0.0.0 -recursor=8.8.8.8 -dns-port=53
     ports:
       - "8500:8500"   # Consul UI/API
+      - "8600:8600/udp"
+      - "8600:8600/tcp"
     networks:
-      - appnet
+      appnet:
+        ipv4_address: 172.18.0.100
 
   registrator:
     image: docker:cli
@@ -27,21 +30,25 @@ services:
     expose:
       - "9003"
     networks:
-      - appnet
+      appnet:
     restart: always
+    dns:
+      - 172.18.0.100
 
   dashboard:
     image: 200325/dashboard-service:latest
     environment:
       - PORT=9002
-      - COUNTING_SERVICE_URL=http://counting:9003
+      - COUNTING_SERVICE_URL=http://counting.service.consul:9003
     expose:
       - "9002"
     depends_on:
       - counting
     networks:
-      - appnet
+      appnet:
     restart: always
+    dns:
+      - 172.18.0.100
 
   dashboard-lb:
     image: nginx:alpine
@@ -58,3 +65,6 @@ services:
 networks:
   appnet:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16
