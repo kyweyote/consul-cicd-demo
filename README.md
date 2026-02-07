@@ -1,6 +1,8 @@
 # Consul CI/CD Demo
 
 This project demonstrates a multi-architecture Docker CI/CD pipeline. It includes a flexible load-balanced dashboard service using Nginx, leveraging Docker DNS for automatic service discovery. All services are registered in Consul for monitoring and visibility.
+## Configuration
+![Configuration](assets/consul.png)
 
 ## Features
 - **GitHub Actions CI/CD** builds and pushes images for:
@@ -15,6 +17,11 @@ This project demonstrates a multi-architecture Docker CI/CD pipeline. It include
   - 1 Nginx load balancer for dashboard service (auto-load balances all dashboard instances)
 - **Automatic Consul Registration**: All service containers are registered with Consul via a custom script.
 - **Flexible Service Discovery**: Nginx uses Docker DNS to dynamically route traffic to all dashboard-service containers, supporting scaling and zero manual IP configuration.
+- **Consul DNS Integration**: 
+  - Consul agent configured with DNS recursion (`-recursor=8.8.8.8`) to resolve external domains
+  - Consul DNS server exposed on port 53 for container DNS queries
+  - Static IP address (`172.18.0.100`) assigned to Consul for reliable DNS resolution
+  - All service containers configured to use Consul as their DNS server, enabling `.service.consul` domain resolution
 
 ## Quick Start
 
